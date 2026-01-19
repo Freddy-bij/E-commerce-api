@@ -1,0 +1,22 @@
+import mongoose, { Document, Schema } from "mongoose";
+
+export interface IProduct extends Document {
+    name: String
+    price: Number
+    description?: String,
+    categoryId: mongoose.Types.ObjectId
+    inStock: Boolean,
+    quantity: Number
+}
+
+const ProductSchema = new Schema<IProduct>({
+    name: { type: String, required: true },
+    price: { type: Number, required: true },
+    description: { type: String, required: false },
+    categoryId: { type: mongoose.Types.ObjectId, ref: "Category", required: true },
+    inStock: { type: Boolean, required: true },
+    quantity: { type: Number, required: true }
+
+}, { timestamps: true });
+
+export const product = mongoose.model("Product", ProductSchema);
