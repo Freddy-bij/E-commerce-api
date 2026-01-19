@@ -1,4 +1,6 @@
 
+
+
 import express from "express";
 import {
   createCategory,
@@ -7,6 +9,7 @@ import {
   getCategory,
   uppdateCategory,
 } from "../controllers/categories.controller.js";
+import swaggerJSDoc from "swagger-jsdoc";
 
 const router = express.Router();
 

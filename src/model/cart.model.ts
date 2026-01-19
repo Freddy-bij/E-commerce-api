@@ -1,18 +1,20 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema , Types } from "mongoose";
 
-export interface IcardItem extends Document {
-    product:mongoose.Types.ObjectId;
-    quantity:number;
+export interface IcartItem {
+    product: Types.ObjectId | string;
+    quantity: number;
+    _id?: Types.ObjectId;
 }
 
+// 2. Mongoose Document Interface
 export interface Icart extends Document {
-    user: mongoose.Types.ObjectId;
-    items: IcardItem[];
+    user: Types.ObjectId | string;
+    items: Types.DocumentArray<IcartItem & mongoose.Types.Subdocument>; 
 }
 
-const cardShema = new Schema<IcardItem>({
+const cardShema = new Schema<IcartItem>({
     product:{
-        type: Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId ,
         ref:"Product",
         required: true
     },
@@ -22,7 +24,9 @@ const cardShema = new Schema<IcardItem>({
         min: 1,
         default: 1,
     }
-})
+},{_id:false})
+
+// Main cart Schema
 
 const cartShema = new Schema<Icart>({
     user:{

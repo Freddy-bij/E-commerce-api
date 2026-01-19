@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import type { JwtPayload } from "jsonwebtoken";
 import { User } from "../model/user.model.js";
+import { JWT_SECRET_VALIDATED } from "../config/env.js";
 
 export interface AuthRequest extends Request {
   user?: {
@@ -25,12 +26,6 @@ const isJwtUserPayload = (payload: unknown): payload is JwtUserPayload => {
   );
 };
 
-const JWT_SECRET = process.env.JWT_SECRET_KEY;
-
-if(!JWT_SECRET) {
-  throw new Error("JWT_SECRET_KEY is not defined")
-}
-
 export const authenticateToken = async (
   req: AuthRequest,
   res: Response,
@@ -42,20 +37,15 @@ export const authenticateToken = async (
     if (!authHeader?.startsWith("Bearer ")) {
       return res.status(401).json({ message: "Not authorized" });
     }
-     const parts = authHeader.split( " ");
 
-     if (parts.length !== 2) {
-       return res.status(401).json({ message: "Invalid authorization header format" });
-     }
+    const token = authHeader.split(" ")[1];
 
-    const token = parts[1];
+    if (!token) {
+      return res.status(401).json({ message: "Token missing" });
+    }
 
-    
-if (!token) {
-  return res.status(401).json({ message: "Token missing" });
-}
-
-    const decoded = jwt.verify(token, JWT_SECRET);
+    // Using the validated secret here removes the TypeScript error
+    const decoded = jwt.verify(token, JWT_SECRET_VALIDATED);
 
     if (!isJwtUserPayload(decoded)) {
       return res.status(401).json({ message: "Invalid token payload" });
@@ -74,13 +64,11 @@ if (!token) {
     };
 
     next();
-  } catch {
+  } catch (error) {
     return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
 
-
-
 export const verifyToken = (token: string) => {
-  return jwt.verify(token, process.env.JWT_SECRET_KE!);
+  return jwt.verify(token, JWT_SECRET_VALIDATED);
 };

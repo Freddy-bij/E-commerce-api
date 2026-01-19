@@ -1,5 +1,5 @@
 import { User } from "../model/user.model.js"
-import { verifyToken } from "../utils/authMiddleware.js"
+import { verifyToken } from "../utils/auth.middleware.js"
 import { generateToken } from "../utils/jwt.js"
 import { type JwtPayload } from "jsonwebtoken"
 import bcrypt from "bcrypt"

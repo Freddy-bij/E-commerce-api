@@ -1,6 +1,8 @@
 import express, { type Request, type Response } from "express"
 import swaggerJSDoc from "swagger-jsdoc"
 import swaggerUi from "swagger-ui-express"
+// @ts-ignore
+import swaggerModelValidator from "swagger-model-validator";
 
 
 const router = express.Router();
@@ -62,7 +64,8 @@ const options: swaggerJSDoc.Options = {
 }
 
 const swaggerSpec = swaggerJSDoc(options)
-require("swagger-model-validator")(swaggerSpec)
+swaggerModelValidator(swaggerSpec);
+// require("swagger-model-validator")(swaggerSpec)
 
 router.get("/json", (req: Request, res: Response) => {
     res.setHeader("Content-Type", "application/json")
