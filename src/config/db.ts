@@ -1,19 +1,10 @@
 import mongoose from "mongoose";
 
-export const connectDb = async () => {
+ export const connectDB = async() => {
     try {
-        const uri = process.env.MONGO_URI; // Make sure this matches your .env exactly
-
-        if (!uri) {
-            throw new Error("MONGO_URI is undefined. Check your .env file naming.");
-        }
-
-        const conn = await mongoose.connect(uri);
-        console.log(`✅ Database connected: ${conn.connection.host}`);
+        const conn = await mongoose.connect(process.env.MONGO_URI! || "mongodb+srv://freddybijanja31_db_user:GMsUJGC8lQCEELQR@cluster0.y8omqxv.mongodb.net/?appName=Cluster0")
+        console.log(`data succefully connected: ${conn.connection.host}`)
     } catch (error) {
-        // Logging the actual error object helps you see if it's a password or network issue
-        console.error("❌ Database connection failed:");
-        console.error(error);
-        process.exit(1); 
+        console.log('connection failed')
     }
-}
+ }

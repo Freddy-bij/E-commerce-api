@@ -13,9 +13,9 @@ const ProductSchema = new Schema<IProduct>({
     name: { type: String, required: true },
     price: { type: Number, required: true },
     description: { type: String, required: false },
-    categoryId: { type: mongoose.Types.ObjectId, ref: "Category", required: true },
-    inStock: { type: Boolean, required: true },
-    quantity: { type: Number, required: true }
+    categoryId: { type: mongoose.Types.ObjectId, ref: "Category"},
+    inStock: { type: Boolean },
+    quantity: { type: Number  }
 
 }, { timestamps: true });
 
