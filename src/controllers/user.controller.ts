@@ -6,6 +6,7 @@ import { User } from "../model/user.model.js";
 import crypto from "crypto";
 import type { AuthRequest } from "../utils/auth.middleware.js";
 import bcrypt from "bcrypt"
+import { sendPasswordResetEmail, sendWelcomeEmail } from "../services/email.services.js";
 
 // CREATE USER
 export const createUser = async (req: Request, res: Response) => {
@@ -18,17 +19,31 @@ export const createUser = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(500).json({ message: error.message });
     }
+
+    
 };
     //   LOGIN Logic
+
 export const login = async (req: Request, res: Response) => {
-    try {
-        const { email, password } = req.body;
-        const { token, existingUser } = await loginService(email, password);
-        res.status(200).json({ token, existingUser, message: "Login successful" });
-    } catch (error: any) {
-        res.status(500).json({ message: error.message });
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
     }
+
+    const { token, existingUser } = await loginService(email, password);
+
+    res.status(200).json({
+      token,
+      userId: existingUser._id,
+      message: "Login successful",
+    });
+  } catch (error: any) {
+    res.status(401).json({ message: error.message });
+  }
 };
+
 
 // LOGIC FOR GETTING ALL USERS
 
@@ -107,6 +122,8 @@ export const forgotPassword = async (req: Request, res: Response) => {
         await user.save();
 
         // TODO: Send email with resetToken here
+
+        await sendPasswordResetEmail(email,user.name, resetToken);
 
         res.status(200).json({
             success: true,

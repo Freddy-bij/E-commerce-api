@@ -55,7 +55,7 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
         await session.abortTransaction();
         return res.status(400).json({
           message: "Insufficient stock",
-          details: `Only ${product.stock} units of "${product.name}" available`,
+          details: `Only ${product.stock} units of ${product.name} available`,
         });
       }
 

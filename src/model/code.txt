@@ -595,3 +595,13 @@ app.use("/api/admin", adminRouter);
 
 // ... rest of your app setup
 */
+
+
+
+
+ " name":"desk",
+ " price":20000,
+"description":"some material for",
+ "categoryId" :""
+"quantity":10,         
+      
