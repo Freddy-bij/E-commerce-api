@@ -4,8 +4,10 @@ import {
   deleteCategory,
   getAllCategories,
   getCategory,
-  uppdateCategory,
+  updateCategory,
 } from "../controllers/categories.controller.js";
+import { upload } from "../config/multer.config.js";
+
 
 const router = express.Router();
 
@@ -17,6 +19,7 @@ const router = express.Router();
  *       type: object
  *       required:
  *         - name
+ *         - img
  *       properties:
  *         _id:
  *           type: string
@@ -27,6 +30,9 @@ const router = express.Router();
  *         description:
  *           type: string
  *           description: Category description
+ *         img:
+ *           type: string
+ *           description: Category image URL path
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -39,23 +45,9 @@ const router = express.Router();
  *         _id: 507f1f77bcf86cd799439011
  *         name: Electronics
  *         description: Electronic devices and accessories
+ *         img: /uploads/categories/electronics-1234567890.jpg
  *         createdAt: 2024-01-15T10:30:00.000Z
  *         updatedAt: 2024-01-15T10:30:00.000Z
- *     
- *     CategoryInput:
- *       type: object
- *       required:
- *         - name
- *       properties:
- *         name:
- *           type: string
- *           description: Category name
- *         description:
- *           type: string
- *           description: Category description
- *       example:
- *         name: Electronics
- *         description: Electronic devices and accessories
  *     
  *     Error:
  *       type: object
@@ -83,9 +75,23 @@ const router = express.Router();
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/CategoryInput'
+ *             type: object
+ *             required:
+ *               - name
+ *               - img
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Category name
+ *               description:
+ *                 type: string
+ *                 description: Category description
+ *               img:
+ *                 type: string
+ *                 format: binary
+ *                 description: Category image file
  *     responses:
  *       201:
  *         description: Category created successfully
@@ -100,7 +106,7 @@ const router = express.Router();
  *                   type: string
  *                   example: Category created successfully
  *       400:
- *         description: Missing required fields
+ *         description: Missing required fields (name or img)
  *         content:
  *           application/json:
  *             schema:
@@ -112,7 +118,7 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post("/", createCategory);
+router.post("/", upload.single("img"), createCategory);
 
 /**
  * @swagger
@@ -183,9 +189,20 @@ router.get("/:id", getCategory);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/CategoryInput'
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Category name
+ *               description:
+ *                 type: string
+ *                 description: Category description
+ *               img:
+ *                 type: string
+ *                 format: binary
+ *                 description: Category image file (optional)
  *     responses:
  *       200:
  *         description: Category updated successfully
@@ -206,7 +223,7 @@ router.get("/:id", getCategory);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put("/:id", uppdateCategory);
+router.put("/:id", upload.single("img"), updateCategory);
 
 /**
  * @swagger

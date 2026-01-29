@@ -6,65 +6,38 @@ import swaggerModelValidator from "swagger-model-validator";
 
 
 const router = express.Router();
-
 const options: swaggerJSDoc.Options = {
-    swaggerDefinition: {
-        openapi:"3.0.0",
-        info: {
-            title:"API Documentation",
-            version:"1.0.0",
-            description:"API documention using swagger-jsdoc"
-        },
-        tags:[
-            {
-                name:"User",
-                description:"User related endpoints"
-            },
-            {
-                name:"Product",
-                description:"Product related endpoints"
-            },
-            {
-               name: "Category",
-               description: "category related endpoint"
-            },
-            {
-                name: "cart",
-                description: "cart related endpoint"
-            },
-            {
-                name:"Server",
-                description:"Server related endpoints"
-            }
-        ],
-        servers: [
-            {
-                url:"http://localhost:3000",
-                description:"Local server"
-            },
-        ],
-            components:{
-                securitySchemes: {
-                    Bearer: {
-                        type: "http",
-                        scheme: "bearer",
-                        bearerFormat: "JWT",
-                        description: "JWT authorization for api"
-                    },
-                    ApiKeyAuth: {
-                        type: "apikey",
-                        in: "header",   
-                            name: "x-api-key",
-                            description: "api key authorization for api" 
-                        }
-                    }
-                }
+  definition: { // Use 'definition' instead of 'swaggerDefinition' for OpenAPI 3
+    openapi: "3.0.0",
+    info: {
+      title: "API Documentation",
+      version: "1.0.0",
+      description: "API documentation using swagger-jsdoc",
     },
-    apis:["./src/router/*.ts"]
-}
+    servers: [
+      {
+        url: "http://localhost:3000",
+        description: "Local server",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        BearerAuth: { // Renamed from 'Bearer' to 'BearerAuth' to match your routers
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+          description: "JWT authorization for api",
+        },
+      },
+    },
+  },
+  apis: ["./src/router/*.ts"],
+};
 
-const swaggerSpec = swaggerJSDoc(options)
-swaggerModelValidator(swaggerSpec);
+const swaggerSpec = swaggerJSDoc(options);
+// IMPORTANT: Comment this out temporarily to see if it's the cause of the crash
+// swaggerModelValidator(swaggerSpec);
+// swaggerModelValidator(swaggerSpec);
 // require("swagger-model-validator")(swaggerSpec)
 
 router.get("/json", (req: Request, res: Response) => {

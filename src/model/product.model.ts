@@ -6,7 +6,7 @@ export interface IProduct extends Document {
     description?: String,
     categoryId: mongoose.Types.ObjectId
     inStock: Boolean,
-    quantity: Number
+    quantity: Number,
 }
 
 const ProductSchema = new Schema<IProduct>({

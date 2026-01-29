@@ -142,7 +142,7 @@ const cartRouter = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/CartError'
  */
-cartRouter.get("/cart/:userId", authenticateToken, getCart);
+cartRouter.get("/:userId", authenticateToken, getCart);
 
 /**
  * @swagger
@@ -192,7 +192,7 @@ cartRouter.get("/cart/:userId", authenticateToken, getCart);
  *             schema:
  *               $ref: '#/components/schemas/CartError'
  */
-cartRouter.post("/cart/:userId/items", authenticateToken, addItemToCart);
+cartRouter.post("/:userId/items", authenticateToken, addItemToCart);
 
 /**
  * @swagger
@@ -255,7 +255,7 @@ cartRouter.post("/cart/:userId/items", authenticateToken, addItemToCart);
  *             schema:
  *               $ref: '#/components/schemas/CartError'
  */
-cartRouter.put("/cart/:userId/items/:id", authenticateToken, updateCartItem);
+cartRouter.put("/:userId/items/:id", authenticateToken, updateCartItem);
 
 /**
  * @swagger
@@ -306,7 +306,7 @@ cartRouter.put("/cart/:userId/items/:id", authenticateToken, updateCartItem);
  *             schema:
  *               $ref: '#/components/schemas/CartError'
  */
-cartRouter.delete("/cart/:userId/items/:id", authenticateToken, removeCartItem);
+cartRouter.delete("/:userId/items/:id", authenticateToken, removeCartItem);
 
 /**
  * @swagger
@@ -348,6 +348,6 @@ cartRouter.delete("/cart/:userId/items/:id", authenticateToken, removeCartItem);
  *             schema:
  *               $ref: '#/components/schemas/CartError'
  */
-cartRouter.delete("/cart/:userId", authenticateToken, clearCart);
+cartRouter.delete("/:userId", authenticateToken, clearCart);
 
 export default cartRouter;

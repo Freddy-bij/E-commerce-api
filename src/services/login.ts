@@ -9,7 +9,6 @@ interface MyToken extends JwtPayload {
 }
 
 
-
 export const loginService = async (email: string, password: string) => {
   const existingUser = await User.findOne({ email }).select("+password");
 
