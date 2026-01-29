@@ -6,7 +6,10 @@ import {
   getCategory,
   updateCategory,
 } from "../controllers/categories.controller.js";
-import { upload } from "../config/multer.config.js";
+import { upload } from "../utils/cloudinary.midlleware.js";
+
+// Or if you renamed it to cloudinary.middleware.js:
+// import { upload } from "../utils/cloudinary.middleware.js";
 
 
 const router = express.Router();
@@ -32,7 +35,7 @@ const router = express.Router();
  *           description: Category description
  *         img:
  *           type: string
- *           description: Category image URL path
+ *           description: Cloudinary image URL
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -45,7 +48,7 @@ const router = express.Router();
  *         _id: 507f1f77bcf86cd799439011
  *         name: Electronics
  *         description: Electronic devices and accessories
- *         img: /uploads/categories/electronics-1234567890.jpg
+ *         img: https://res.cloudinary.com/demo/image/upload/v1234567/categories/category-1234567890.jpg
  *         createdAt: 2024-01-15T10:30:00.000Z
  *         updatedAt: 2024-01-15T10:30:00.000Z
  *     
@@ -63,7 +66,7 @@ const router = express.Router();
  * @swagger
  * tags:
  *   name: Categories
- *   description: Category management API
+ *   description: Category management API with Cloudinary image storage
  */
 
 /**
@@ -91,7 +94,7 @@ const router = express.Router();
  *               img:
  *                 type: string
  *                 format: binary
- *                 description: Category image file
+ *                 description: Category image file (max 5MB, jpg/png/gif/webp)
  *     responses:
  *       201:
  *         description: Category created successfully
@@ -128,15 +131,15 @@ router.post("/", upload.single("img"), createCategory);
  *     tags: [Categories]
  *     responses:
  *       200:
- *         description: List of all categories
+ *         description: List of all categories with Cloudinary image URLs
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Category'
- *       404:
- *         description: Categories not found
+ *       500:
+ *         description: Failed to fetch categories
  *         content:
  *           application/json:
  *             schema:
@@ -166,6 +169,12 @@ router.get("/", getAllCategories);
  *               $ref: '#/components/schemas/Category'
  *       404:
  *         description: Category not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Error fetching category
  *         content:
  *           application/json:
  *             schema:
@@ -202,7 +211,7 @@ router.get("/:id", getCategory);
  *               img:
  *                 type: string
  *                 format: binary
- *                 description: Category image file (optional)
+ *                 description: New category image file (optional, replaces old image)
  *     responses:
  *       200:
  *         description: Category updated successfully
@@ -240,7 +249,7 @@ router.put("/:id", upload.single("img"), updateCategory);
  *         description: Category ID
  *     responses:
  *       200:
- *         description: Category deleted successfully
+ *         description: Category deleted successfully (image removed from Cloudinary)
  *         content:
  *           application/json:
  *             schema:

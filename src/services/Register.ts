@@ -11,11 +11,9 @@ export const createUser = async (userData: any) => {
     if (existingUser) {
         throw new Error("User with this email already exists");
     }
-    
-    // Hash password
+
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Create new user
     const newUser = new User({
         name,
         email,

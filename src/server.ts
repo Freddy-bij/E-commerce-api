@@ -10,9 +10,7 @@ import { createAdminAcount } from "./script/admin.js"
 import OrderRouter from "./router/order.routes.js"
 import { adminRouter } from "./router/admin.routes.js"
 import cors from "cors"
-import path from "path"
 import multer from "multer"
-import fs from "fs"
 
 dotenv.config()
 
@@ -30,23 +28,10 @@ app.use(cors({
   credentials: true
 }));
 
-// CRITICAL FIX: Serve from uploads folder (NOT public/uploads)
-const uploadsPath = path.join(process.cwd(), "uploads");
-app.use("/uploads", express.static(uploadsPath));
-
-// Debug logging
-console.log("\n🔍 SERVER CONFIGURATION:");
-console.log("📁 Project root:", process.cwd());
-console.log("📁 Serving static files from:", uploadsPath);
-console.log("📁 Uploads folder exists:", fs.existsSync(uploadsPath));
-
-if (fs.existsSync(uploadsPath)) {
-  const files = fs.readdirSync(uploadsPath);
-  console.log("📸 Files in uploads folder:", files.length);
-  if (files.length > 0) {
-    console.log("📸 Files:", files);
-  }
-}
+// NO NEED FOR STATIC FILE SERVING - Cloudinary handles all images!
+console.log("\n🌩️  SERVER CONFIGURATION:");
+console.log("✅ Using Cloudinary for image storage");
+console.log("✅ No local file system needed");
 console.log("\n");
 
 // Create admin account
@@ -67,9 +52,8 @@ app.use("/api-docs", swagger);
 app.get("/health", (req, res) => {
   res.status(200).json({ 
     status: "OK", 
-    message: "Server is running",
-    uploadsPath: uploadsPath,
-    cwd: process.cwd()
+    message: "Server is running with Cloudinary",
+    imageStorage: "Cloudinary CDN"
   });
 });
 
@@ -106,7 +90,7 @@ app.listen(port, async () => {
   console.log(`🚀 Server running on http://localhost:${port}`);
   console.log(`📚 API Docs: http://localhost:${port}/api-docs`);
   console.log(`🔗 CORS enabled for: http://localhost:5173`);
-  console.log(`\n💡 Test image: http://localhost:${port}/uploads/short-1769611098893-681424976.jpg\n`);
+  console.log(`🌩️  Images hosted on Cloudinary CDN\n`);
 });
 
 export default app;

@@ -135,32 +135,38 @@ export const forgotPassword = async (req: Request, res: Response) => {
     }
 };
 export const resetPassword = async (req: any, res: Response) => {
-    const resetToken = crypto
+    try {
+        // 1. Hash the incoming URL token to match what's in the DB
+        const resetToken = crypto
+            .createHash("sha256")
+            .update(req.params.token)
+            .digest("hex");
 
-    .createHash("sha256")
-    .update(req.params.token)
-    .digest("hex");
+        // 2. Find the user with that token and check expiry
+        const user = await User.findOne({
+            resetPasswordToken: resetToken,
+            resetPasswordExpire: { $gt: new Date() },
+        });
 
-    const user = await User.findOne({
-        resetPasswordToken: resetToken,
-        resetPasswordExpire: { $gt: new Date() },
-    })
+        if (!user) {
+            return res.status(400).json({ message: "Invalid or expired token" });
+        }
 
-    if (!user) {
-        return res.status(400).json({ message: "Invalid or expired token"});
+        // 3. Set the NEW password (let the Model's pre-save hook hash it!)zzz
+        user.password = req.body.password; 
 
+        // 4. Clear the reset fields
+        user.resetPasswordToken = "";
+        user.resetPasswordExpire = null;
+
+        // 5. IMPORTANT: You MUST save the user to the database!
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Password reset successful"
+        });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
     }
-
-    const salt = await bcrypt.genSalt(10);
-
-    user.password = await bcrypt.hash(req.body.password, salt);
-
-    user.resetPasswordToken = undefined!;
-    user.resetPasswordExpire = undefined!;
-
-    res.status(200).json({
-        success: true,
-        message: "Password reset successful"
-    })
-
 }

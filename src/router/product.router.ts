@@ -1,7 +1,15 @@
-import express from "express"
-import { createProduct, deleteProduct, getAllProducts, getProduct, uppddateProduct } from "../controllers/product.controller.js"
+import express from "express";
+import { 
+  createProduct, 
+  deleteProduct, 
+  getAllProducts, 
+  getProduct, 
+  updateProduct 
+} from "../controllers/product.controller.js";
+import { upload } from "../utils/cloudinary.midlleware.js";
 
-const productRouter = express.Router()
+
+const productRouter = express.Router();
 
 /**
  * @swagger
@@ -36,6 +44,15 @@ const productRouter = express.Router()
  *         inStock:
  *           type: boolean
  *           description: Stock availability status
+ *         img:
+ *           type: string
+ *           description: Product image URL from Cloudinary
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
  *       example:
  *         _id: 507f1f77bcf86cd799439011
  *         name: iPhone 15 Pro
@@ -44,13 +61,16 @@ const productRouter = express.Router()
  *         categoryId: 64f9a2b3c1e4a9f8d1234567
  *         quantity: 50
  *         inStock: true
+ *         img: https://res.cloudinary.com/demo/image/upload/v1234567/products/product-1234567890.jpg
+ *         createdAt: 2024-01-15T10:30:00.000Z
+ *         updatedAt: 2024-01-15T10:30:00.000Z
  */
 
 /**
  * @swagger
  * tags:
  *   name: Products
- *   description: Product management API
+ *   description: Product management API with Cloudinary image support
  */
 
 /**
@@ -62,7 +82,7 @@ const productRouter = express.Router()
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -87,6 +107,10 @@ const productRouter = express.Router()
  *               quantity:
  *                 type: integer
  *                 example: 50
+ *               img:
+ *                 type: string
+ *                 format: binary
+ *                 description: Product image file (optional, max 5MB, jpg/png/gif/webp)
  *     responses:
  *       201:
  *         description: Product created successfully
@@ -123,7 +147,7 @@ const productRouter = express.Router()
  *       500:
  *         description: Server error
  */
-productRouter.post("/" , createProduct)
+productRouter.post("/", upload.single("img"), createProduct);
 
 /**
  * @swagger
@@ -133,17 +157,17 @@ productRouter.post("/" , createProduct)
  *     tags: [Products]
  *     responses:
  *       200:
- *         description: List of all products
+ *         description: List of all products with Cloudinary image URLs
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Product'
- *       404:
- *         description: Products not found
+ *       500:
+ *         description: Failed to fetch products
  */
-productRouter.get("/" , getAllProducts )
+productRouter.get("/", getAllProducts);
 
 /**
  * @swagger
@@ -167,8 +191,10 @@ productRouter.get("/" , getAllProducts )
  *               $ref: '#/components/schemas/Product'
  *       404:
  *         description: Product not found
+ *       500:
+ *         description: Error fetching product
  */
-productRouter.get("/:id" , getProduct)
+productRouter.get("/:id", getProduct);
 
 /**
  * @swagger
@@ -186,7 +212,7 @@ productRouter.get("/:id" , getProduct)
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -206,6 +232,10 @@ productRouter.get("/:id" , getProduct)
  *               quantity:
  *                 type: integer
  *                 example: 30
+ *               img:
+ *                 type: string
+ *                 format: binary
+ *                 description: New product image file (optional, replaces old image)
  *     responses:
  *       200:
  *         description: Product updated successfully
@@ -218,7 +248,7 @@ productRouter.get("/:id" , getProduct)
  *       500:
  *         description: Failed to update product
  */
-productRouter.put("/:id" , uppddateProduct)
+productRouter.put("/:id", upload.single("img"), updateProduct);
 
 /**
  * @swagger
@@ -235,7 +265,7 @@ productRouter.put("/:id" , uppddateProduct)
  *         description: Product ID
  *     responses:
  *       200:
- *         description: Product deleted successfully
+ *         description: Product deleted successfully (image removed from Cloudinary)
  *         content:
  *           application/json:
  *             schema:
@@ -243,10 +273,12 @@ productRouter.put("/:id" , uppddateProduct)
  *               properties:
  *                 message:
  *                   type: string
- *                   example: product deleted successfully
+ *                   example: Product deleted successfully
  *       404:
  *         description: Product not found
+ *       500:
+ *         description: Error deleting product
  */
-productRouter.delete("/:id" , deleteProduct)
+productRouter.delete("/:id", deleteProduct);
 
-export default productRouter
+export default productRouter;
