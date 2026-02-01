@@ -6,7 +6,7 @@ import userRouter from "./router/users.router.js"
 import swagger from "./swagger.js"
 import cartRouter from "./router/card.router.js"
 import { connectDB } from "./config/db.js"
-import { createAdminAcount } from "./script/admin.js"
+import { createAdminAccount } from "./script/admin.js"  // Fixed typo
 import OrderRouter from "./router/order.routes.js"
 import { adminRouter } from "./router/admin.routes.js"
 import cors from "cors"
@@ -35,14 +35,13 @@ console.log("✅ No local file system needed");
 console.log("\n");
 
 // Create admin account
-createAdminAcount()
+createAdminAccount()  // Fixed typo
 
-// API Routes
 app.use("/api/categories", router);
 app.use("/api/product", productRouter);
 app.use("/api/users", userRouter);
 app.use("/api/cart", cartRouter);
-app.use("/api/oders", OrderRouter)
+app.use("/api/orders", OrderRouter) 
 app.use("/admin", adminRouter)
 
 // Swagger Documentation
@@ -90,7 +89,8 @@ app.listen(port, async () => {
   console.log(`🚀 Server running on http://localhost:${port}`);
   console.log(`📚 API Docs: http://localhost:${port}/api-docs`);
   console.log(`🔗 CORS enabled for: http://localhost:5173`);
-  console.log(`🌩️  Images hosted on Cloudinary CDN\n`);
+  console.log(`🌩️  Images hosted on Cloudinary CDN`);
+  console.log(`🔐 Auth API: http://localhost:${port}/api/auth\n`);
 });
 
 export default app;

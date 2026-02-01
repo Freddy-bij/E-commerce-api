@@ -1,23 +1,30 @@
 import { User } from "../model/user.model.js"
 import bcrypt from "bcrypt"
 
-export const createAdminAcount = async () => {
+export const createAdminAccount = async () => {
     try {
-       const exitingAdmin = await User.findOne({
+       const existingAdmin = await User.findOne({
         email: "admin@ecommerce.com"
        }) 
-       if(!exitingAdmin){
+       
+       if(!existingAdmin){
+        const hashedPassword = await bcrypt.hash("admin123", 10);
+        
         const newAdmin = new User({
-            firstName: "Admin",
-            email:"admin@ecommerce.com",
-            password: await bcrypt.hash("admin",10),
+            name: "Admin",  // Changed from firstName to name (matches your User model)
+            email: "admin@ecommerce.com",
+            password: hashedPassword,
             role: "admin"
-
         })
+        
         await newAdmin.save();
-        console.log("Admin aldready exist")
+        console.log("✅ Admin account created successfully");
+        console.log("   Email: admin@ecommerce.com");
+        console.log("   Password: admin123");
+       } else {
+        console.log("✅ Admin account already exists");
        }
     } catch (error) {
-      console.log("Error creating  admin account" )  
+      console.error("❌ Error creating admin account:", error)  
     }
 }

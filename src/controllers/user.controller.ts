@@ -1,4 +1,4 @@
-import { type  Request, type Response } from "express"; 
+import { type Request, type Response } from "express"; 
 import { loginService, refreshTokenService as refreshTokenService } from "../services/login.js"; 
 import { createUser as createUserService } from "../services/Register.js"; 
 import { getUsersService } from "../services/user.service.js";
@@ -19,11 +19,9 @@ export const createUser = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(500).json({ message: error.message });
     }
-
-    
 };
-    //   LOGIN Logic
 
+// LOGIN Logic
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -44,9 +42,23 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
+// LOGOUT Logic
+export const logout = async (req: AuthRequest, res: Response) => {
+    try {
+        // Since we're using JWT tokens (stateless), logout is handled client-side
+        // by removing the token. This endpoint can be used for logging/analytics
+        // or if you implement token blacklisting in the future.
+        
+        res.status(200).json({
+            success: true,
+            message: "Logout successful"
+        });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
 // LOGIC FOR GETTING ALL USERS
-
 export const getUsers = async (req: Request, res: Response) => {
     try {
         const users = await getUsersService();
@@ -57,7 +69,6 @@ export const getUsers = async (req: Request, res: Response) => {
 };
 
 // HANDLE TO REFRESH TOKEN
-
 export const handleRefreshToken = async (req: Request, res: Response) => {
     try {
         const { token } = req.body;
@@ -68,8 +79,7 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
     }
 };
 
-    //  GET USER PROFILE 
-
+// GET USER PROFILE 
 export const getProfile = async ( req:AuthRequest , res: Response) => {
     const user = await User.findById(req.user?.id);
 
@@ -121,9 +131,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
         await user.save();
 
-        // TODO: Send email with resetToken here
-
-        await sendPasswordResetEmail(email,user.name, resetToken);
+        await sendPasswordResetEmail(email, user.name, resetToken);
 
         res.status(200).json({
             success: true,
@@ -134,6 +142,8 @@ export const forgotPassword = async (req: Request, res: Response) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// RESET PASSWORD
 export const resetPassword = async (req: any, res: Response) => {
     try {
         // 1. Hash the incoming URL token to match what's in the DB
@@ -152,7 +162,6 @@ export const resetPassword = async (req: any, res: Response) => {
             return res.status(400).json({ message: "Invalid or expired token" });
         }
 
-        // 3. Set the NEW password (let the Model's pre-save hook hash it!)zzz
         user.password = req.body.password; 
 
         // 4. Clear the reset fields

@@ -69,6 +69,20 @@ export const authenticateToken = async (
   }
 };
 
+export const authorizeAdmin = (
+  req: AuthRequest, 
+  res: Response, 
+  next: NextFunction
+) => {
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
+    return res.status(403).json({ 
+      message: "Forbidden: You do not have admin privileges" 
+    });
+  }
+};
+
 export const verifyToken = (token: string) => {
   return jwt.verify(token, JWT_SECRET_VALIDATED);
 };

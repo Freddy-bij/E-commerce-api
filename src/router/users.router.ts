@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { 
     createUser, 
-    login, 
+    login,
+    logout,
     getUsers, 
     handleRefreshToken, 
     getProfile,
@@ -221,11 +222,24 @@ userRouter.post("/register", createUser);
  *                 token:
  *                   type: string
  *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
- *                 existingUser:
- *                   $ref: '#/components/schemas/User'
+ *                 userId:
+ *                   type: string
+ *                   example: 507f1f77bcf86cd799439011
  *                 message:
  *                   type: string
  *                   example: Login successful
+ *       400:
+ *         description: Email and password are required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Invalid credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Server error
  *         content:
@@ -234,6 +248,43 @@ userRouter.post("/register", createUser);
  *               $ref: '#/components/schemas/Error'
  */
 userRouter.post("/login", login);
+
+/**
+ * @swagger
+ * /api/users/logout:
+ *   post:
+ *     summary: Logout user
+ *     tags: [Users]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Logout successful
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+userRouter.post("/logout", authenticateToken, logout);
 
 /**
  * @swagger
@@ -328,7 +379,7 @@ userRouter.post("/refresh-token", handleRefreshToken);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-userRouter.get("/profile", getProfile);
+userRouter.get("/profile", authenticateToken, getProfile);
 
 /**
  * @swagger
