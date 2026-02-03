@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import Cart from "../model/cart.model.js";
-import { product as ProductModel } from "../model/product.model.js";
+import  ProductModel from "../model/product.model.js";
 
 
 const populateCart = async (cart: any) => {

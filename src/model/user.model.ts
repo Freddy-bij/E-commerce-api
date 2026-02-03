@@ -29,7 +29,7 @@ const UserSchema = new Schema<IUser>({
     resetPasswordExpire: Date,
     role: { 
         type: String, 
-        enum: ["admin", "vendor", "customer", "applicant"], 
+        enum: ["admin", "vendor", "customer"], 
         default: "customer" 
     }
 }, { timestamps: true });

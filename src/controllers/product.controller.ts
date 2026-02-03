@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { product } from "../model/product.model.js";
+import  Product from "../model/product.model.js";
 import { category } from "../model/category.model.js";
 import cloudinary from "../config/cloudinary.config.js";
 import { Readable } from "stream";
@@ -121,7 +121,7 @@ export const createProduct = async (req: Request, res: Response) => {
       img = uploadResult.secure_url;
     }
 
-    const productCreated = await product.create({
+    const productCreated = await Product.create({
       name,
       price,
       description,
@@ -149,7 +149,7 @@ export const createProduct = async (req: Request, res: Response) => {
  */
 export const getAllProducts = async (req: Request, res: Response) => {
   try {
-    const products = await product.find({}).populate('categoryId');
+    const products = await Product.find({}).populate('categoryId');
     res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch products" });
@@ -162,7 +162,7 @@ export const getAllProducts = async (req: Request, res: Response) => {
 export const getProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const productInfo = await product.findById(id).populate('categoryId');
+    const productInfo = await Product.findById(id).populate('categoryId');
     
     if (!productInfo) {
       return res.status(404).json({ message: "Product not found" });
@@ -199,7 +199,7 @@ export const updateProduct = async (req: Request, res: Response) => {
       console.log("📤 Uploading new product image to Cloudinary...");
       
       // Get old product to delete old image
-      const oldProduct = await product.findById(id);
+      const oldProduct = await Product.findById(id);
       
       // Upload new image
       const uploadResult = await uploadToCloudinary(
@@ -215,7 +215,7 @@ export const updateProduct = async (req: Request, res: Response) => {
       }
     }
 
-    const updatedProduct = await product.findByIdAndUpdate(
+    const updatedProduct = await Product.findByIdAndUpdate(
       id,
       updateData,
       { new: true, runValidators: true }
@@ -238,7 +238,7 @@ export const updateProduct = async (req: Request, res: Response) => {
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const deletedProduct = await product.findByIdAndDelete(id);
+    const deletedProduct = await Product.findByIdAndDelete(id);
 
     if (!deletedProduct) {
       return res.status(404).json({ message: "Product not found" });

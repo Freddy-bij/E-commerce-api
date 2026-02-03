@@ -22,6 +22,27 @@ export const createUser = async (req: Request, res: Response) => {
 };
 
 // LOGIN Logic
+// export const login = async (req: Request, res: Response) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     if (!email || !password) {
+//       return res.status(400).json({ message: "Email and password are required" });
+//     }
+
+//     const { token, existingUser } = await loginService(email, password);
+
+//     res.status(200).json({
+//       token,
+//       userId: existingUser._id,
+//       message: "Login successful",
+//     });
+//   } catch (error: any) {
+//     res.status(401).json({ message: error.message });
+//   }
+// };
+
+
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -36,6 +57,12 @@ export const login = async (req: Request, res: Response) => {
       token,
       userId: existingUser._id,
       message: "Login successful",
+      user: {                          // ⭐ ADD THIS
+        id: existingUser._id,
+        name: existingUser.name,
+        email: existingUser.email,
+        role: existingUser.role        // ⭐ MOST IMPORTANT
+      }
     });
   } catch (error: any) {
     res.status(401).json({ message: error.message });

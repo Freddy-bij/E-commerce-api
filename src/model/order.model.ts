@@ -1,14 +1,25 @@
-// ============================================================================
-// CORRECTED ORDER MODEL (order.model.ts)
-// ============================================================================
-
 import { model, Schema, type Types, Document } from "mongoose";
 
 export interface OrderItem {
   product: Types.ObjectId;
-  name: string; // Added: Store product name snapshot
+  name: string;
   quantity: number;
   price: number;
+}
+
+export interface BillingDetails {
+  firstName: string;
+  lastName: string;
+  companyName?: string;
+  country: string;
+  streetAddress: string;
+  apartment?: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  phone: string;
+  email: string;
+  orderNotes?: string;
 }
 
 export interface IOrder extends Document {
@@ -16,11 +27,63 @@ export interface IOrder extends Document {
   items: OrderItem[];
   totalAmount: number;
   status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
+  billingDetails?: BillingDetails;
+  shippingDetails?: BillingDetails;
   createdAt: Date;
   updatedAt: Date;
 }
 
-// For single order item
+// Billing/Shipping Details Schema
+const AddressSchema = new Schema({
+  firstName: {
+    type: String,
+    required: true
+  },
+  lastName: {
+    type: String,
+    required: true
+  },
+  companyName: {
+    type: String,
+    required: false
+  },
+  country: {
+    type: String,
+    required: true
+  },
+  streetAddress: {
+    type: String,
+    required: false
+  },
+  apartment: {
+    type: String
+  },
+  city: {
+    type: String,
+    required: true
+  },
+  state: {
+    type: String,
+    required: true
+  },
+  zipCode: {
+    type: String,
+    required: false
+  },
+  phone: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true
+  },
+  orderNotes: {
+    type: String
+  }
+}, { _id: false });
+
+// Order Item Schema
 const OrderItemSchema = new Schema<OrderItem>(
   {
     product: {
@@ -30,7 +93,7 @@ const OrderItemSchema = new Schema<OrderItem>(
     },
     name: {
       type: String,
-      required: true, // Store product name at time of order
+      required: true,
     },
     quantity: {
       type: Number,
@@ -46,7 +109,7 @@ const OrderItemSchema = new Schema<OrderItem>(
   { _id: false }
 );
 
-// Main Order schema
+// Main Order Schema
 const orderSchema = new Schema<IOrder>(
   {
     user: {
@@ -74,6 +137,14 @@ const orderSchema = new Schema<IOrder>(
       enum: ["pending", "confirmed", "shipped", "delivered", "cancelled"],
       default: "pending",
     },
+    billingDetails: {
+      type: AddressSchema,
+      required: false
+    },
+    shippingDetails: {
+      type: AddressSchema,
+      required: false
+    }
   },
   { timestamps: true }
 );
