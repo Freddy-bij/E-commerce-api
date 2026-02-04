@@ -54,11 +54,40 @@ export const sendOrderConfirmationEmail = async (
   email: string,
   firstName: string,
   orderId: string,
-  total: number
-): Promise<void> => {
-  await sendEmail({
+  total: number,
+  items: Array<{ name: string; quantity: number; price: number }>
+) => {
+  try {
+     await transporter.sendMail({
+    from: `"Your store" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: `Order Confirmation - ${orderId}`,
-    html: orderConfirmationTemplate(firstName, orderId, total),
+    html: orderConfirmationTemplate(firstName, orderId, total, items),
   });
+  console.log(`order confirmation sent to ${email}`)
+  } catch (error) {
+    console.log('Email sending failed:' , error)
+    throw error
+  }
+};
+
+export const sendOrderStatusUpdate = async (
+  email: string,
+  firstName: string,
+  orderId: string,
+  status: string,
+  html: string
+) => {
+  try {
+    await transporter.sendMail({
+      from: `"Your Store" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: `Order Update: ${status.toUpperCase()} - #${orderId}`,
+      html: html,
+    });
+    console.log(`✅ Status update email sent to ${email} - Status: ${status}`);
+  } catch (error) {
+    console.error('❌ Email sending failed:', error);
+    throw error;
+  }
 };

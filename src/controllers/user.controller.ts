@@ -6,41 +6,19 @@ import { User } from "../model/user.model.js";
 import crypto from "crypto";
 import type { AuthRequest } from "../utils/auth.middleware.js";
 import bcrypt from "bcrypt"
-import { sendPasswordResetEmail, sendWelcomeEmail } from "../services/email.services.js";
+import { sendPasswordResetEmail } from "../services/email.services.js";
 
-// CREATE USER
 export const createUser = async (req: Request, res: Response) => {
     try {
         const userData = req.body;
         const { token, existingUser } = await createUserService(userData);
         
-        // Don't send the full object if it contains sensitive data
         res.status(201).json({ token, userId: existingUser._id, message: "User created successfully" });
     } catch (error: any) {
         res.status(500).json({ message: error.message });
     }
 };
 
-// LOGIN Logic
-// export const login = async (req: Request, res: Response) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     if (!email || !password) {
-//       return res.status(400).json({ message: "Email and password are required" });
-//     }
-
-//     const { token, existingUser } = await loginService(email, password);
-
-//     res.status(200).json({
-//       token,
-//       userId: existingUser._id,
-//       message: "Login successful",
-//     });
-//   } catch (error: any) {
-//     res.status(401).json({ message: error.message });
-//   }
-// };
 
 
 export const login = async (req: Request, res: Response) => {
@@ -57,11 +35,11 @@ export const login = async (req: Request, res: Response) => {
       token,
       userId: existingUser._id,
       message: "Login successful",
-      user: {                          // ⭐ ADD THIS
+      user: {                          
         id: existingUser._id,
         name: existingUser.name,
         email: existingUser.email,
-        role: existingUser.role        // ⭐ MOST IMPORTANT
+        role: existingUser.role        
       }
     });
   } catch (error: any) {
@@ -69,12 +47,10 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-// LOGOUT Logic
+
 export const logout = async (req: AuthRequest, res: Response) => {
     try {
-        // Since we're using JWT tokens (stateless), logout is handled client-side
-        // by removing the token. This endpoint can be used for logging/analytics
-        // or if you implement token blacklisting in the future.
+        
         
         res.status(200).json({
             success: true,
@@ -85,7 +61,7 @@ export const logout = async (req: AuthRequest, res: Response) => {
     }
 };
 
-// LOGIC FOR GETTING ALL USERS
+
 export const getUsers = async (req: Request, res: Response) => {
     try {
         const users = await getUsersService();
@@ -95,7 +71,7 @@ export const getUsers = async (req: Request, res: Response) => {
     }
 };
 
-// HANDLE TO REFRESH TOKEN
+
 export const handleRefreshToken = async (req: Request, res: Response) => {
     try {
         const { token } = req.body;
@@ -106,7 +82,7 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
     }
 };
 
-// GET USER PROFILE 
+
 export const getProfile = async ( req:AuthRequest , res: Response) => {
     const user = await User.findById(req.user?.id);
 
@@ -116,7 +92,7 @@ export const getProfile = async ( req:AuthRequest , res: Response) => {
     });
 }
 
-// CHANGE PASSWORD
+
 export const changePassword = async (req: AuthRequest, res: Response) => {
     try {
         const { oldPassword, newPassword } = req.body;
@@ -138,7 +114,7 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
     }
 };
 
-// FORGOT PASSWORD
+
 export const forgotPassword = async (req: Request, res: Response) => {
     try {
         const { email } = req.body;
@@ -148,7 +124,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
         const resetToken = crypto.randomBytes(20).toString("hex");
 
-        // Hash and set to resetPasswordToken field
         user.resetPasswordToken = crypto
             .createHash("sha256")
             .update(resetToken)
@@ -162,7 +137,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
         res.status(200).json({
             success: true,
-            resetToken, // In production, only send this via email!
+            resetToken, 
             message: "Reset token generated"
         });
     } catch (error: any) {
@@ -170,16 +145,14 @@ export const forgotPassword = async (req: Request, res: Response) => {
     }
 };
 
-// RESET PASSWORD
 export const resetPassword = async (req: any, res: Response) => {
     try {
-        // 1. Hash the incoming URL token to match what's in the DB
+       
         const resetToken = crypto
             .createHash("sha256")
             .update(req.params.token)
             .digest("hex");
 
-        // 2. Find the user with that token and check expiry
         const user = await User.findOne({
             resetPasswordToken: resetToken,
             resetPasswordExpire: { $gt: new Date() },
@@ -193,9 +166,9 @@ export const resetPassword = async (req: any, res: Response) => {
 
         // 4. Clear the reset fields
         user.resetPasswordToken = "";
-        user.resetPasswordExpire = null;
+        user.resetPasswordExpire = new Date(0);
 
-        // 5. IMPORTANT: You MUST save the user to the database!
+        
         await user.save();
 
         res.status(200).json({

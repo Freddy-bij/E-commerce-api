@@ -10,15 +10,13 @@ const populateCart = async (cart: any) => {
   });
 };
 
-/**
- * Get user's cart
- * GET /api/cart/:userId
- */
+
 export const getCart = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-
-    const cart = await Cart.findOne({ user: userId });
+    const filter = userId ? { user: userId}:{};
+    
+    const cart = await Cart.findOne(filter);
 
     if (!cart) {
       return res.status(200).json({ items: [] });
@@ -32,10 +30,7 @@ export const getCart = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * Add item to cart
- * POST /api/cart/:userId/items
- */
+
 export const addItemToCart = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
@@ -50,8 +45,8 @@ export const addItemToCart = async (req: Request, res: Response) => {
     if (!productExists) {
       return res.status(404).json({ message: "Product not found" });
     }
-
-    let cart = await Cart.findOne({ user: userId });
+    const filter = userId ? { user: userId}:{};
+    let cart = await Cart.findOne(filter);
 
     if (!cart) {
       
@@ -65,7 +60,7 @@ export const addItemToCart = async (req: Request, res: Response) => {
         (item) => item.product.toString() === productId
       );
 
-      if (existingItemIndex > -1) {
+      if (existingItemIndex > -1 && cart.items[existingItemIndex]) {
         cart.items[existingItemIndex].quantity += quantity;
       } else {
         cart.items.push({ product: productId, quantity });
@@ -87,20 +82,22 @@ export const addItemToCart = async (req: Request, res: Response) => {
 
 export const updateCartItem = async (req: Request, res: Response) => {
   try {
-    const { userId, id } = req.params; // This 'id' could be Product ID OR Cart Item ID
+    const { userId, id } = req.params; 
     const { quantity } = req.body;
 
     if (quantity === undefined || quantity < 1) {
       return res.status(400).json({ message: "Valid quantity is required" });
     }
-
-    const cart = await Cart.findOne({ user: userId });
+    const filter = userId ? { user: userId}:{};
+    const cart = await Cart.findOne(filter);
     if (!cart) return res.status(404).json({ message: "Cart not found" });
 
-    // 1. Try to find by Cart Item _id first
-    let item = cart.items.id(id);
+    
+    let item = cart.items.find(
+      (i: any) => i._id?.toString() === id
+    );
 
-    // 2. If not found, try to find by the Product reference ID
+    
     if (!item) {
       item = cart.items.find(
         (i: any) => i.product && i.product.toString() === id
@@ -113,12 +110,11 @@ export const updateCartItem = async (req: Request, res: Response) => {
       });
     }
 
-    // Update the quantity
     item.quantity = quantity;
     
     await cart.save();
 
-    // Populate using our helper to ensure the frontend gets the full product data back
+
     await populateCart(cart);
     
     res.status(200).json(cart);
@@ -131,13 +127,13 @@ export const updateCartItem = async (req: Request, res: Response) => {
 export const removeCartItem = async (req: Request, res: Response) => {
   try {
     const { userId, id } = req.params;
-
-    const cart = await Cart.findOne({ user: userId });
+    const filter = userId ? { user: userId}:{};
+    const cart = await Cart.findOne(filter);
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
     }
 
-    cart.items.pull({ _id: id });
+    cart.items = cart.items.filter((item: any) => item._id?.toString() !== id);
     
     await cart.save();
     await populateCart(cart);
@@ -153,8 +149,8 @@ export const removeCartItem = async (req: Request, res: Response) => {
 export const clearCart = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-
-    const cart = await Cart.findOne({ user: userId });
+    const filter = userId ? { user: userId}:{};
+    const cart = await Cart.findOne(filter);
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
     }

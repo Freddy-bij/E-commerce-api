@@ -42,7 +42,7 @@ app.use("/api/product", productRouter);
 app.use("/api/users", userRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", OrderRouter) 
-app.use("/admin", adminRouter)
+app.use("/api/admin", adminRouter) 
 
 // Swagger Documentation
 app.use("/api-docs", swagger);
